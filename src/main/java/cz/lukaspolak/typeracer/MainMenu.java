@@ -10,15 +10,24 @@ public class MainMenu extends JFrame {
 
     public void createUIComponents() {
         this.setContentPane(this.mainPanel);
-        this.setTitle("TypeRacer Game");
-        this.setSize(500, 500);
+        this.setTitle(Constants.GAME_TITLE);
+        this.setSize(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
 
-        gameBtn.addActionListener(e -> {
-            Game game = new Game();
-            game.createUIComponents();
-            dispose();
-        });
+        gameBtn.addActionListener(e -> handleGameBtn());
+        statsBtn.addActionListener(e -> handleStatsBtn());
+    }
+
+    private void handleStatsBtn() {
+        StatsForm statsForm = new StatsForm();
+        statsForm.createUIComponents();
+        this.dispose();
+    }
+
+    private void handleGameBtn() {
+        Game game = new Game();
+        game.createUIComponents();
+        this.dispose();
     }
 }

@@ -25,6 +25,7 @@ public class Game extends JFrame {
     private JLabel upperLabel;
     private JTextPane textPane;
     private JLabel timerLabel;
+    private JButton backToMenuButton;
 
     private int writtenChars;
     private int secondsElapsed;
@@ -33,17 +34,41 @@ public class Game extends JFrame {
     private ArrayList<String> wordsCompleted;
     private boolean playing;
     private Timer timer;
+    private Statistics statistics;
+
+    private void startGame() {
+        String text = getRandomText();
+        String[] words = text.split(" ");
+
+        wordsRemaining = new ArrayList<>(Arrays.asList(words));
+        wordsCompleted = new ArrayList<>();
+        accuracy = 0;
+        writtenChars = 0;
+        secondsElapsed = 0;
+
+        textPane.setText(text);
+        textPane.setForeground(Color.BLACK);
+
+        inputTextField.setText("");
+
+        statistics = new Statistics();
+
+        timer = new Timer(1000, e -> handleGameTimer());
+        timer.start();
+
+        playing = true;
+    }
 
     private String getRandomText() {
-        try (InputStream in = getClass().getResourceAsStream("/texts.json")) {
+        try (InputStream in = getClass().getResourceAsStream(Constants.TEXTS_FILE)) {
             if(in == null) {
-                throw new IOException("Resource not found");
+                throw new IOException("Resource not found.");
             }
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
             JSONObject obj = new JSONObject(new JSONTokener(reader));
-            String[] texts = obj.getJSONArray("texts").toList().toArray(new String[0]);
+            String[] texts = obj.getJSONArray(Constants.JSON_TEXTS_KEY).toList().toArray(new String[0]);
 
             return texts[(int) (Math.random() * texts.length)];
         }
@@ -68,27 +93,6 @@ public class Game extends JFrame {
         }
     }
 
-    private void startGame() {
-        String text = getRandomText();
-        String[] words = text.split(" ");
-
-        wordsRemaining = new ArrayList<>(Arrays.asList(words));
-        wordsCompleted = new ArrayList<>();
-        accuracy = 0;
-        writtenChars = 0;
-        secondsElapsed = 0;
-
-        textPane.setText(text);
-        textPane.setForeground(Color.BLACK);
-
-        inputTextField.setText("");
-
-        timer = new Timer(1000, e -> handleGameTimer());
-        timer.start();
-
-        playing = true;
-    }
-
     private void changeTextColor(Color firstColor, Color secondColor) {
         try {
             textPane.setText("");
@@ -106,7 +110,8 @@ public class Game extends JFrame {
             doc.insertString(doc.getLength(),  String.join(" ", wordsRemaining), style2);
         }
         catch (BadLocationException e) {
-            System.err.println("An error occurred while inserting text into the text pane.");
+            this.textPane.setText("An error occurred while changing text color. Please restart the game.");
+            System.err.println("An error occurred while changing text color in the text pane.");
         }
     }
 
@@ -145,16 +150,24 @@ public class Game extends JFrame {
         return wpm;
     }
 
+    private void gameOver() {
+        double wpm = calculateWPM();
+
+        textPane.setText(String.format("You have finished the game in %d seconds with %.1f WPM and %.2f%% accuracy.", secondsElapsed, wpm, accuracy*100));
+        textPane.setForeground(Color.BLACK);
+        playing = false;
+        timer.stop();
+
+        statistics.saveStatistics(wpm, accuracy);
+    }
+
     private void checkWord() {
         if(!playing) {
             return;
         }
 
         if(wordsRemaining.size() == 0) {
-            textPane.setText(String.format("You have finished the game in %d seconds with %.1f WPM and %.2f%% accuracy.", secondsElapsed, calculateWPM(), accuracy*100));
-            textPane.setForeground(Color.BLACK);
-            playing = false;
-            timer.stop();
+            gameOver();
             return;
         }
 
@@ -196,6 +209,7 @@ public class Game extends JFrame {
     private void updateStats(String currentWord, String input) {
         wpmLabel.setText(String.format("WPM: %.1f", calculateWPM()));
 
+        // accuracy between [0, 1]
         accuracy = (getCompletedWordsCharactersCount() + getCommonCharactersInTwoStrings(currentWord, input).length) / (double) writtenChars;
         if(accuracy <= 1) {
             accuracyLabel.setText(String.format("Accuracy: %.2f%%", accuracy * 100));
@@ -214,29 +228,38 @@ public class Game extends JFrame {
         }
     }
 
+    private void handleStartBtn() {
+        if(playing) {
+            return;
+        }
+
+        secondsElapsed = 0;
+        int countdown = 3;
+
+        String readyMessage = "Get ready in %d...";
+        textPane.setText(String.format(readyMessage, countdown));
+
+        timer = new Timer(1000, e1 -> handleReadyTimer(countdown, readyMessage));
+        timer.start();
+    }
+
+    private void handleBackToMenuBtn() {
+        this.dispose();
+        MainMenu menu = new MainMenu();
+        menu.createUIComponents();
+    }
+
     public void createUIComponents() {
         this.setContentPane(this.gamePanel);
-        this.setTitle("TypeRacer Game");
-        this.setSize(500, 500);
+        this.setTitle(Constants.GAME_TITLE);
+        this.setSize(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        this.textPane.setFont(new Font("Arial", Font.PLAIN, 20));
-        this.inputTextField.setFont(new Font("Arial", Font.PLAIN, 15));
+        this.textPane.setFont(new Font(Constants.DEFAULT_FONT, Font.PLAIN, 20));
+        this.inputTextField.setFont(new Font(Constants.DEFAULT_FONT, Font.PLAIN, 15));
 
-        startButton.addActionListener(e -> {
-            if(playing) {
-                return;
-            }
-
-            secondsElapsed = 0;
-            int countdown = 3;
-
-            String readyMessage = "Get ready in %d...";
-            textPane.setText(String.format(readyMessage, countdown));
-
-            timer = new Timer(1000, e1 -> handleReadyTimer(countdown, readyMessage));
-            timer.start();
-        });
+        startButton.addActionListener(e -> handleStartBtn());
+        backToMenuButton.addActionListener(e -> handleBackToMenuBtn());
 
         inputTextField.getDocument().addDocumentListener(new DocumentListener() {
             Runnable checkWord = () -> checkWord();
