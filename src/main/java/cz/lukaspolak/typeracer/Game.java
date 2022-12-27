@@ -1,5 +1,8 @@
 package cz.lukaspolak.typeracer;
 
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -8,6 +11,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -31,8 +35,37 @@ public class Game extends JFrame {
     private Timer timer;
 
     private String getRandomText() {
-        // TODO: add more texts
-        return "This is a sample text.";
+        try (InputStream in = getClass().getResourceAsStream("/texts.json")) {
+            if(in == null) {
+                throw new IOException("Resource not found");
+            }
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+            JSONObject obj = new JSONObject(new JSONTokener(reader));
+            String[] texts = obj.getJSONArray("texts").toList().toArray(new String[0]);
+
+            return texts[(int) (Math.random() * texts.length)];
+        }
+        catch (IOException e) {
+            System.err.println("Error while reading JSON file: " + e.getMessage());
+            return "An error occurred. But don't worry, you can still play the game with this great sample text. Have fun and make sure to fix the problem (provide a valid JSON file with texts)!";
+        }
+    }
+
+    private void handleGameTimer() {
+        secondsElapsed++;
+
+        int hours = secondsElapsed / 3600;
+        int minutes = (secondsElapsed % 3600) / 60;
+        int seconds = secondsElapsed % 60;
+
+        if(hours < 1) {
+            timerLabel.setText(String.format("Time: %02d:%02d", minutes, seconds));
+        }
+        else {
+            timerLabel.setText(String.format("Time: %02d:%02d:%02d", hours, minutes, seconds));
+        }
     }
 
     private void startGame() {
@@ -50,21 +83,7 @@ public class Game extends JFrame {
 
         inputTextField.setText("");
 
-        // start the timer
-        timer = new Timer(1000, e -> {
-            secondsElapsed++;
-
-            int hours = secondsElapsed / 3600;
-            int minutes = (secondsElapsed % 3600) / 60;
-            int seconds = secondsElapsed % 60;
-
-            if(hours < 1) {
-                timerLabel.setText(String.format("Time: %02d:%02d", minutes, seconds));
-            } else {
-                timerLabel.setText(String.format("Time: %02d:%02d:%02d", hours, minutes, seconds));
-            }
-        });
-
+        timer = new Timer(1000, e -> handleGameTimer());
         timer.start();
 
         playing = true;
@@ -87,7 +106,7 @@ public class Game extends JFrame {
             doc.insertString(doc.getLength(),  String.join(" ", wordsRemaining), style2);
         }
         catch (BadLocationException e) {
-            System.out.println("An error occurred while inserting text into the text pane.");
+            System.err.println("An error occurred while inserting text into the text pane.");
         }
     }
 
@@ -183,33 +202,39 @@ public class Game extends JFrame {
         }
     }
 
+    private void handleReadyTimer(int countdown, String readyMessage) {
+        secondsElapsed++;
+        if(secondsElapsed < countdown) {
+            textPane.setText(String.format(readyMessage, countdown - secondsElapsed));
+        }
+        else {
+            textPane.setText("");
+            timer.stop();
+            startGame();
+        }
+    }
+
     public void createUIComponents() {
         this.setContentPane(this.gamePanel);
         this.setTitle("TypeRacer Game");
         this.setSize(500, 500);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setVisible(true);
 
         this.textPane.setFont(new Font("Arial", Font.PLAIN, 20));
         this.inputTextField.setFont(new Font("Arial", Font.PLAIN, 15));
 
         startButton.addActionListener(e -> {
+            if(playing) {
+                return;
+            }
+
             secondsElapsed = 0;
             int countdown = 3;
-            textPane.setText(String.format("Get ready in %d...", countdown));
 
-            timer = new Timer(1000, e1 -> {
-                secondsElapsed++;
-                if(secondsElapsed < countdown) {
-                    textPane.setText(String.format("Get ready in %d...", countdown - secondsElapsed));
-                }
-                else {
-                    textPane.setText("");
-                    timer.stop();
-                    startGame();
-                }
-            });
+            String readyMessage = "Get ready in %d...";
+            textPane.setText(String.format(readyMessage, countdown));
 
+            timer = new Timer(1000, e1 -> handleReadyTimer(countdown, readyMessage));
             timer.start();
         });
 
@@ -226,6 +251,7 @@ public class Game extends JFrame {
                 SwingUtilities.invokeLater(checkWord);
             }
         });
-    }
 
+        this.setVisible(true);
+    }
 }
