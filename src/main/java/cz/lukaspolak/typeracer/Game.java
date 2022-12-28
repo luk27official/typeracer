@@ -133,11 +133,12 @@ public class Game extends JFrame {
     /**
      * This method opens a file with texts to be typed.
      * Then it randomly selects one of the texts and returns it.
+     *
      * @return a random text to be typed
      */
     private String getRandomText() {
         try (InputStream in = getClass().getResourceAsStream(Constants.TEXTS_FILE)) {
-            if(in == null) {
+            if (in == null) {
                 throw new IOException(Constants.NOT_FOUND_ERROR);
             }
 
@@ -147,8 +148,7 @@ public class Game extends JFrame {
             String[] texts = obj.getJSONArray(Constants.JSON_TEXTS_KEY).toList().toArray(new String[0]);
 
             return texts[(int) (Math.random() * texts.length)];
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.err.printf((Constants.JSON_ERROR) + "%n", e.getMessage());
             return "An error occurred. But don't worry, you can still play the game with this great sample text. Have fun and make sure to fix the problem (provide a valid JSON file with texts)!";
         }
@@ -165,10 +165,9 @@ public class Game extends JFrame {
         int minutes = (secondsElapsed % 3600) / 60;
         int seconds = secondsElapsed % 60;
 
-        if(hours < 1) {
+        if (hours < 1) {
             timerLabel.setText(String.format(Constants.TIME_FORMAT_MINUTES_SECONDS, minutes, seconds));
-        }
-        else {
+        } else {
             timerLabel.setText(String.format(Constants.TIME_FORMAT_HOURS_MINUTES_SECONDS, hours, minutes, seconds));
         }
     }
@@ -187,15 +186,14 @@ public class Game extends JFrame {
             StyleConstants.setForeground(style, Color.GREEN);
             doc.insertString(doc.getLength(), String.join(" ", wordsCompleted), style);
 
-            if(wordsCompleted.size() > 0) {
+            if (wordsCompleted.size() > 0) {
                 doc.insertString(doc.getLength(), " ", style);
             }
 
             Style style2 = textPane.addStyle(null, null);
             StyleConstants.setForeground(style2, color);
-            doc.insertString(doc.getLength(),  String.join(" ", wordsRemaining), style2);
-        }
-        catch (BadLocationException e) {
+            doc.insertString(doc.getLength(), String.join(" ", wordsRemaining), style2);
+        } catch (BadLocationException e) {
             this.textPane.setText(Constants.TEXT_FORMAT_ERROR);
             System.err.println(Constants.TEXT_FORMAT_ERROR);
         }
@@ -203,19 +201,18 @@ public class Game extends JFrame {
 
     /**
      * This method is responsible for getting common characters in two given strings.
+     *
      * @param s1 first string
      * @param s2 second string
      * @return array of common characters
      */
     private Character[] getCommonCharactersInTwoStrings(String s1, String s2) {
         HashSet<Character> h1 = new HashSet<>(), h2 = new HashSet<>();
-        for(int i = 0; i < s1.length(); i++)
-        {
+        for (int i = 0; i < s1.length(); i++) {
             h1.add(s1.charAt(i));
         }
 
-        for(int i = 0; i < s2.length(); i++)
-        {
+        for (int i = 0; i < s2.length(); i++) {
             h2.add(s2.charAt(i));
         }
 
@@ -225,11 +222,12 @@ public class Game extends JFrame {
 
     /**
      * This method counts the total number of characters in the completed words.
+     *
      * @return total number of characters in the completed words
      */
     private double getCompletedWordsCharactersCount() {
         double count = 0;
-        for(String word : wordsCompleted) {
+        for (String word : wordsCompleted) {
             count += word.length();
         }
         return count;
@@ -237,10 +235,11 @@ public class Game extends JFrame {
 
     /**
      * This method calculates the WPM metric.
+     *
      * @return WPM metric
      */
     private double calculateWPM() {
-        if(secondsElapsed == 0) {
+        if (secondsElapsed == 0) {
             return 0;
         }
 
@@ -258,7 +257,7 @@ public class Game extends JFrame {
     private void gameOver() {
         double wpm = calculateWPM();
 
-        textPane.setText(String.format(Constants.GAME_FINISHED, secondsElapsed, wpm, accuracy*100));
+        textPane.setText(String.format(Constants.GAME_FINISHED, secondsElapsed, wpm, accuracy * 100));
         textPane.setForeground(Color.BLACK);
         playing = false;
         timer.stop();
@@ -271,11 +270,11 @@ public class Game extends JFrame {
      * It gets the current input and based on the input it updates the game.
      */
     private void checkWord() {
-        if(!playing) {
+        if (!playing) {
             return;
         }
 
-        if(wordsRemaining.size() == 0) {
+        if (wordsRemaining.size() == 0) {
             gameOver();
             return;
         }
@@ -285,16 +284,15 @@ public class Game extends JFrame {
 
         //input = input.trim();
 
-        if(input.length() != 0) {
+        if (input.length() != 0) {
             writtenChars++;
         }
 
-        if(input.length() > 0 && waitingForSpace) {
-            if(input.charAt(0) != ' ') {
+        if (input.length() > 0 && waitingForSpace) {
+            if (input.charAt(0) != ' ') {
                 inputTextField.setForeground(Color.RED);
                 changeTextColor(Color.RED);
-            }
-            else {
+            } else {
                 inputTextField.setText("");
                 waitingForSpace = false;
             }
@@ -302,7 +300,7 @@ public class Game extends JFrame {
             return;
         }
 
-        if(input.equals(currentWord)) {
+        if (input.equals(currentWord)) {
             inputTextField.setForeground(Color.BLACK);
             inputTextField.setText("");
 
@@ -313,13 +311,11 @@ public class Game extends JFrame {
 
             waitingForSpace = true;
             currentWord = "";
-        }
-        else if(currentWord.startsWith(input)) {
+        } else if (currentWord.startsWith(input)) {
             inputTextField.setForeground(Color.BLACK);
 
             changeTextColor(Color.BLACK);
-        }
-        else {
+        } else {
             inputTextField.setForeground(Color.RED);
 
             changeTextColor(Color.RED);
@@ -330,15 +326,16 @@ public class Game extends JFrame {
 
     /**
      * This method updates the current game statistics (in the GUI).
+     *
      * @param currentWord current word
-     * @param input current input
+     * @param input       current input
      */
     private void updateStats(String currentWord, String input) {
         wpmLabel.setText(String.format(Constants.WPM_INFO, calculateWPM()));
 
         // accuracy between [0, 1]
         accuracy = (getCompletedWordsCharactersCount() + wordsCompleted.size() + getCommonCharactersInTwoStrings(currentWord, input).length) / (double) writtenChars;
-        if(accuracy > 1) { //may happen at the end of the game, because of the non-existent space at the end of the last word
+        if (accuracy > 1) { //may happen at the end of the game, because of the non-existent space at the end of the last word
             accuracy = 1;
         }
         accuracyLabel.setText(String.format(Constants.ACCURACY_INFO, accuracy * 100));
@@ -349,10 +346,9 @@ public class Game extends JFrame {
      */
     private void handleReadyTimer() {
         secondsElapsed++;
-        if(secondsElapsed < Constants.START_COUNTDOWN) {
+        if (secondsElapsed < Constants.START_COUNTDOWN) {
             textPane.setText(String.format(Constants.READY_MESSAGE, Constants.START_COUNTDOWN - secondsElapsed));
-        }
-        else {
+        } else {
             textPane.setText("");
             timer.stop();
             startGame();
@@ -364,7 +360,7 @@ public class Game extends JFrame {
      * If not in game, it starts a timer which counts down before the game starts.
      */
     private void handleStartBtn() {
-        if(playing) {
+        if (playing) {
             return;
         }
 
@@ -408,14 +404,66 @@ public class Game extends JFrame {
             public void changedUpdate(DocumentEvent e) {
                 SwingUtilities.invokeLater(checkWord);
             }
+
             public void removeUpdate(DocumentEvent e) {
                 SwingUtilities.invokeLater(checkWord);
             }
+
             public void insertUpdate(DocumentEvent e) {
                 SwingUtilities.invokeLater(checkWord);
             }
         });
 
         this.setVisible(true);
+    }
+
+    {
+// GUI initializer generated by IntelliJ IDEA GUI Designer
+// >>> IMPORTANT!! <<<
+// DO NOT EDIT OR ADD ANY CODE HERE!
+        $$$setupUI$$$();
+    }
+
+    /**
+     * Method generated by IntelliJ IDEA GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     *
+     * @noinspection ALL
+     */
+    private void $$$setupUI$$$() {
+        gamePanel = new JPanel();
+        gamePanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(8, 2, new Insets(10, 10, 10, 10), -1, -1));
+        final com.intellij.uiDesigner.core.Spacer spacer1 = new com.intellij.uiDesigner.core.Spacer();
+        gamePanel.add(spacer1, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        upperLabel = new JLabel();
+        upperLabel.setText("TypeRacer");
+        gamePanel.add(upperLabel, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        wpmLabel = new JLabel();
+        wpmLabel.setText("WPM: 0");
+        gamePanel.add(wpmLabel, new com.intellij.uiDesigner.core.GridConstraints(6, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        startButton = new JButton();
+        startButton.setText("Start!");
+        gamePanel.add(startButton, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        inputTextField = new JTextField();
+        gamePanel.add(inputTextField, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        accuracyLabel = new JLabel();
+        accuracyLabel.setText("Accuracy: 0%");
+        gamePanel.add(accuracyLabel, new com.intellij.uiDesigner.core.GridConstraints(6, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        textPane = new JTextPane();
+        gamePanel.add(textPane, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        timerLabel = new JLabel();
+        timerLabel.setText("Time: 00:00");
+        gamePanel.add(timerLabel, new com.intellij.uiDesigner.core.GridConstraints(5, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        backToMenuButton = new JButton();
+        backToMenuButton.setText("Back to menu");
+        gamePanel.add(backToMenuButton, new com.intellij.uiDesigner.core.GridConstraints(7, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return gamePanel;
     }
 }
