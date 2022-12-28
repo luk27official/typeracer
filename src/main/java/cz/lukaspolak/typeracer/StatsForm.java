@@ -4,6 +4,8 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -17,14 +19,16 @@ public class StatsForm extends JFrame {
 
     private Statistics statistics;
 
-    private void updateTable(JSONObject[] scores) {
-        String[] columns = new String[] {
-            Constants.WPM_COLUMN_NAME,
-            Constants.ACCURACY_COLUMN_NAME,
-            Constants.DATETIME_COLUMN_NAME
-        };
+    private String[] columns = new String[] {
+        Constants.WPM_COLUMN_NAME,
+        Constants.ACCURACY_COLUMN_NAME,
+        Constants.DATETIME_COLUMN_NAME
+    };
 
-        DefaultTableModel model = (DefaultTableModel)scoresTable.getModel();
+    private void updateTable(JSONObject[] scores) {
+
+        //DefaultTableModel model = (DefaultTableModel)scoresTable.getModel();
+        DefaultTableModel model = new DefaultTableModel(columns, 0);
 
         model.setColumnIdentifiers(columns);
 
@@ -55,6 +59,11 @@ public class StatsForm extends JFrame {
         this.dispose();
     }
 
+    private void handleColumnTableClick(int col) {
+        JSONObject[] topScores = statistics.getTopScores(Constants.TOP_SCORES_COUNT, StatisticsCriteria.values()[col]);
+        updateTable(topScores);
+    }
+
     public void createUIComponents() {
         this.setContentPane(this.statsPanel);
         this.setTitle(Constants.GAME_TITLE);
@@ -69,6 +78,13 @@ public class StatsForm extends JFrame {
         this.upperLabel.setText(String.format(Constants.TOP_SCORES_LABEL, Constants.TOP_SCORES_COUNT));
 
         scoresTable.setDefaultEditor(Object.class, null); //disable editing cells
+
+        scoresTable.getTableHeader().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleColumnTableClick(scoresTable.columnAtPoint(e.getPoint()));
+            }
+        });
 
         JSONObject[] topScores = statistics.getTopScores(Constants.TOP_SCORES_COUNT, StatisticsCriteria.WPM);
         updateTable(topScores);
