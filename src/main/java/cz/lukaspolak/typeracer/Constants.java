@@ -13,8 +13,9 @@ public class Constants {
 
     public static final int JSON_INDENT = 4;
 
-    public static final int WINDOW_WIDTH = 500;
+    public static final int WINDOW_WIDTH = 600;
     public static final int WINDOW_HEIGHT = 500;
     public static final String DEFAULT_FONT = "Arial";
 
+    public static final int TOP_SCORES_COUNT = 20;
 }

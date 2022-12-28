@@ -25,7 +25,7 @@ public class Statistics {
                 jsonValues.add(scores.getJSONObject(i));
             }
 
-            Collections.sort(jsonValues, criteria.getComparator());
+            jsonValues.sort(criteria.getComparator());
 
             JSONObject[] topScores = jsonValues.stream().limit(count).toArray(JSONObject[]::new);
             return topScores;
