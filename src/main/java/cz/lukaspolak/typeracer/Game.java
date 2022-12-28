@@ -92,6 +92,11 @@ public class Game extends JFrame {
     private Statistics statistics;
 
     /**
+     * A boolean indicating whether a space is required as the next character.
+     */
+    private boolean waitingForSpace;
+
+    /**
      * A constructor for the Game class.
      */
     public Game() {
@@ -112,6 +117,7 @@ public class Game extends JFrame {
         accuracy = 0;
         writtenChars = 0;
         secondsElapsed = 0;
+        waitingForSpace = false;
 
         textPane.setText(text);
         textPane.setForeground(Color.BLACK);
@@ -238,7 +244,9 @@ public class Game extends JFrame {
             return 0;
         }
 
-        double wpm = (getCompletedWordsCharactersCount() / 5) / (secondsElapsed / 60.0);
+        double wpm = ((getCompletedWordsCharactersCount() + wordsCompleted.size()) / 5) / (secondsElapsed / 60.0);
+        // the calculation above is based on the following formula:
+        // ((written characters + spaces) / 5) / (seconds / 60)
         // 5 is the average word length, standardized
         // Proceedings of the IEEE Toronto International Conference–Science and Technology for Humanity (TIC-STH '09). IEEE, Washington, D.C., US, pp. 100-105.
         return wpm;
@@ -274,14 +282,26 @@ public class Game extends JFrame {
         }
 
         String input = inputTextField.getText();
+        String currentWord = wordsRemaining.get(0);
 
-        input = input.trim();
+        //input = input.trim();
 
         if(input.length() != 0) {
             writtenChars++;
         }
 
-        String currentWord = wordsRemaining.get(0);
+        if(input.length() > 0 && waitingForSpace) {
+            if(input.charAt(0) != ' ') {
+                inputTextField.setForeground(Color.RED);
+                changeTextColor(Color.GREEN, Color.RED);
+            }
+            else {
+                inputTextField.setText("");
+                waitingForSpace = false;
+            }
+            updateStats(currentWord, input);
+            return;
+        }
 
         if(input.equals(currentWord)) {
             inputTextField.setForeground(Color.BLACK);
@@ -292,6 +312,7 @@ public class Game extends JFrame {
             wordsRemaining.remove(0);
             wordsCompleted.add(currentWord);
 
+            waitingForSpace = true;
             currentWord = "";
         }
         else if(currentWord.startsWith(input)) {
@@ -317,10 +338,11 @@ public class Game extends JFrame {
         wpmLabel.setText(String.format(Constants.WPM_INFO, calculateWPM()));
 
         // accuracy between [0, 1]
-        accuracy = (getCompletedWordsCharactersCount() + getCommonCharactersInTwoStrings(currentWord, input).length) / (double) writtenChars;
-        if(accuracy <= 1) {
-            accuracyLabel.setText(String.format(Constants.ACCURACY_INFO, accuracy * 100));
+        accuracy = (getCompletedWordsCharactersCount() + wordsCompleted.size() + getCommonCharactersInTwoStrings(currentWord, input).length) / (double) writtenChars;
+        if(accuracy > 1) { //may happen at the end of the game, because of the non-existent space at the end of the last word
+            accuracy = 1;
         }
+        accuracyLabel.setText(String.format(Constants.ACCURACY_INFO, accuracy * 100));
     }
 
     /**
