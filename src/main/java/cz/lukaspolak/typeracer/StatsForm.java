@@ -112,6 +112,7 @@ public class StatsForm extends JFrame {
         this.setTitle(Constants.GAME_TITLE);
         this.setSize(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLocationRelativeTo(null); // center the window on the screen
 
         backToMenuBtn.addActionListener(e -> handleBackToMenuBtn());
 

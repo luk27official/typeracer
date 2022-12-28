@@ -394,6 +394,7 @@ public class Game extends JFrame {
         this.setTitle(Constants.GAME_TITLE);
         this.setSize(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLocationRelativeTo(null); // center the window on the screen
 
         this.textPane.setFont(new Font(Constants.DEFAULT_FONT, Font.PLAIN, Constants.GAME_FONT_SIZE));
         this.inputTextField.setFont(new Font(Constants.DEFAULT_FONT, Font.PLAIN, Constants.TEXTINPUT_FONT_SIZE));
