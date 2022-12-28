@@ -45,11 +45,10 @@ public class Statistics {
 
             jsonValues.sort(criteria.getComparator());
 
-            JSONObject[] topScores = jsonValues.stream().limit(count).toArray(JSONObject[]::new);
-            return topScores;
+            return jsonValues.stream().limit(count).toArray(JSONObject[]::new);
         }
         catch (IOException e) {
-            System.err.println(String.format(Constants.JSON_ERROR, e.getMessage()));
+            System.err.printf((Constants.JSON_ERROR) + "%n", e.getMessage());
         }
         return null;
     }
@@ -76,13 +75,13 @@ public class Statistics {
             JSONObject obj = new JSONObject(new JSONTokener(reader));
             obj.getJSONArray(Constants.JSON_SCORES_KEY).put(new JSONObject().put(Constants.JSON_WPM_KEY, wpm).put(Constants.JSON_ACCURACY_KEY, accuracy).put(Constants.JSON_DATETIME_KEY, System.currentTimeMillis()));
 
-            try (FileWriter file = new FileWriter(getClass().getResource(Constants.SCORES_FILE).getPath())) {
+            try (FileWriter file = new FileWriter(Objects.requireNonNull(getClass().getResource(Constants.SCORES_FILE)).getPath())) {
                 file.write(obj.toString(Constants.JSON_INDENT));
                 file.flush();
             }
         }
         catch (IOException e) {
-            System.err.println(String.format(Constants.JSON_ERROR, e.getMessage()));
+            System.err.printf((Constants.JSON_ERROR) + "%n", e.getMessage());
         }
     }
 }

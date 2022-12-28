@@ -44,7 +44,7 @@ public class StatsForm extends JFrame {
     /**
      * An array of column names for the table.
      */
-    private String[] columns = new String[] {
+    private final String[] columns = new String[] {
         Constants.WPM_COLUMN_NAME,
         Constants.ACCURACY_COLUMN_NAME,
         Constants.DATETIME_COLUMN_NAME
@@ -66,16 +66,14 @@ public class StatsForm extends JFrame {
 
         model.setColumnIdentifiers(columns);
 
-        for(int i = 0; i < scores.length; i++) {
-            JSONObject score = scores[i];
-
+        for (JSONObject score : scores) {
             String[] row = new String[columns.length];
 
             // round to 1 decimal place
             row[Arrays.asList(columns).indexOf(Constants.WPM_COLUMN_NAME)] = String.format("%.1f", score.getDouble(Constants.JSON_WPM_KEY));
 
             // round to 0 decimal places
-            row[Arrays.asList(columns).indexOf(Constants.ACCURACY_COLUMN_NAME)] = String.format("%.0f%%", score.getDouble(Constants.JSON_ACCURACY_KEY)*100);
+            row[Arrays.asList(columns).indexOf(Constants.ACCURACY_COLUMN_NAME)] = String.format("%.0f%%", score.getDouble(Constants.JSON_ACCURACY_KEY) * 100);
 
             // convert timestamp to date and time
             Date date = new Date(score.getLong(Constants.JSON_DATETIME_KEY));

@@ -89,7 +89,7 @@ public class Game extends JFrame {
     /**
      * An instance of the Statistics class to manage the statistics.
      */
-    private Statistics statistics;
+    private final Statistics statistics;
 
     /**
      * A boolean indicating whether a space is required as the next character.
@@ -149,7 +149,7 @@ public class Game extends JFrame {
             return texts[(int) (Math.random() * texts.length)];
         }
         catch (IOException e) {
-            System.err.println(String.format(Constants.JSON_ERROR, e.getMessage()));
+            System.err.printf((Constants.JSON_ERROR) + "%n", e.getMessage());
             return "An error occurred. But don't worry, you can still play the game with this great sample text. Have fun and make sure to fix the problem (provide a valid JSON file with texts)!";
         }
     }
@@ -176,15 +176,15 @@ public class Game extends JFrame {
     /**
      * This method is called when the user types a character.
      * It updates the game text area to be colored property.
-     * @param firstColor color of the words which have been typed
-     * @param secondColor color of the words which have not been typed
+     *
+     * @param color color of the words which have not been typed
      */
-    private void changeTextColor(Color firstColor, Color secondColor) {
+    private void changeTextColor(Color color) {
         try {
             textPane.setText("");
             StyledDocument doc = textPane.getStyledDocument();
             Style style = textPane.addStyle(null, null);
-            StyleConstants.setForeground(style, firstColor);
+            StyleConstants.setForeground(style, Color.GREEN);
             doc.insertString(doc.getLength(), String.join(" ", wordsCompleted), style);
 
             if(wordsCompleted.size() > 0) {
@@ -192,7 +192,7 @@ public class Game extends JFrame {
             }
 
             Style style2 = textPane.addStyle(null, null);
-            StyleConstants.setForeground(style2, secondColor);
+            StyleConstants.setForeground(style2, color);
             doc.insertString(doc.getLength(),  String.join(" ", wordsRemaining), style2);
         }
         catch (BadLocationException e) {
@@ -244,12 +244,11 @@ public class Game extends JFrame {
             return 0;
         }
 
-        double wpm = ((getCompletedWordsCharactersCount() + wordsCompleted.size()) / 5) / (secondsElapsed / 60.0);
         // the calculation above is based on the following formula:
         // ((written characters + spaces) / 5) / (seconds / 60)
         // 5 is the average word length, standardized
         // Proceedings of the IEEE Toronto International Conference–Science and Technology for Humanity (TIC-STH '09). IEEE, Washington, D.C., US, pp. 100-105.
-        return wpm;
+        return ((getCompletedWordsCharactersCount() + wordsCompleted.size()) / 5) / (secondsElapsed / 60.0);
     }
 
     /**
@@ -293,7 +292,7 @@ public class Game extends JFrame {
         if(input.length() > 0 && waitingForSpace) {
             if(input.charAt(0) != ' ') {
                 inputTextField.setForeground(Color.RED);
-                changeTextColor(Color.GREEN, Color.RED);
+                changeTextColor(Color.RED);
             }
             else {
                 inputTextField.setText("");
@@ -307,7 +306,7 @@ public class Game extends JFrame {
             inputTextField.setForeground(Color.BLACK);
             inputTextField.setText("");
 
-            changeTextColor(Color.GREEN, Color.BLACK);
+            changeTextColor(Color.BLACK);
 
             wordsRemaining.remove(0);
             wordsCompleted.add(currentWord);
@@ -318,12 +317,12 @@ public class Game extends JFrame {
         else if(currentWord.startsWith(input)) {
             inputTextField.setForeground(Color.BLACK);
 
-            changeTextColor(Color.GREEN, Color.BLACK);
+            changeTextColor(Color.BLACK);
         }
         else {
             inputTextField.setForeground(Color.RED);
 
-            changeTextColor(Color.GREEN, Color.RED);
+            changeTextColor(Color.RED);
         }
 
         updateStats(currentWord, input);
@@ -347,13 +346,11 @@ public class Game extends JFrame {
 
     /**
      * This method is invoked by the timer before the game starts.
-     * @param countdown number of seconds before the game starts
-     * @param readyMessage message to be displayed before the game starts in a specific format
      */
-    private void handleReadyTimer(int countdown, String readyMessage) {
+    private void handleReadyTimer() {
         secondsElapsed++;
-        if(secondsElapsed < countdown) {
-            textPane.setText(String.format(readyMessage, countdown - secondsElapsed));
+        if(secondsElapsed < Constants.START_COUNTDOWN) {
+            textPane.setText(String.format(Constants.READY_MESSAGE, Constants.START_COUNTDOWN - secondsElapsed));
         }
         else {
             textPane.setText("");
@@ -375,7 +372,7 @@ public class Game extends JFrame {
 
         textPane.setText(String.format(Constants.READY_MESSAGE, Constants.START_COUNTDOWN));
 
-        timer = new Timer(1000, e1 -> handleReadyTimer(Constants.START_COUNTDOWN, Constants.READY_MESSAGE));
+        timer = new Timer(1000, e1 -> handleReadyTimer());
         timer.start();
     }
 
@@ -405,7 +402,7 @@ public class Game extends JFrame {
         backToMenuButton.addActionListener(e -> handleBackToMenuBtn());
 
         inputTextField.getDocument().addDocumentListener(new DocumentListener() {
-            Runnable checkWord = () -> checkWord();
+            final Runnable checkWord = () -> checkWord();
 
             public void changedUpdate(DocumentEvent e) {
                 SwingUtilities.invokeLater(checkWord);
