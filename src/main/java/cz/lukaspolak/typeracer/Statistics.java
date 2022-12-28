@@ -7,8 +7,26 @@ import org.json.JSONTokener;
 import java.io.*;
 import java.util.*;
 
+/**
+ * This class is responsible for storing and managing game statistics such as WPM and typing accuracy.
+ */
 public class Statistics {
 
+    /**
+     * An empty constructor.
+     */
+    public Statistics() {
+    }
+
+    /**
+     * This method is responsible for loading statistics from the scores file.
+     * The method extracts the data from the file and returns it as a list of JSON objects.
+     * If the file does not exist, the method returns null.
+     * The data is sorted by the given statistics criteria (WPM/accuracy/timestamp).
+     * @param count number of top statistics to load
+     * @param criteria criteria to sort the statistics by
+     * @return sorted list of JSON objects representing top statistics
+     */
     public JSONObject[] getTopScores(int count, StatisticsCriteria criteria) {
         try (InputStream in = getClass().getResourceAsStream(Constants.SCORES_FILE)) {
             if(in == null) {
@@ -36,6 +54,13 @@ public class Statistics {
         return null;
     }
 
+    /**
+     * This method is responsible for saving the statistics to the scores file.
+     * The method appends the statistics to the file.
+     * If the file does not exist, the method creates it.
+     * @param wpm WPM of the game
+     * @param accuracy typing accuracy of the game
+     */
     public void saveStatistics(double wpm, double accuracy) {
         //round doubles to 2 decimal places
         wpm = Math.round(wpm * 100.0) / 100.0;

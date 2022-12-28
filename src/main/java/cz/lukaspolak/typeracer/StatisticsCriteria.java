@@ -4,11 +4,29 @@ import org.json.JSONObject;
 
 import java.util.Comparator;
 
+/**
+ * This enum represents various statistics metrics (or data).
+ * Each metric has a name and a comparator.
+ * The comparator is used to sort the scores (in the scores table).
+ */
 public enum StatisticsCriteria {
+    /**
+     * WPM (words per minute) metric.
+     */
     WPM,
+    /**
+     * Typing accuracy metric.
+     */
     ACCURACY,
+    /**
+     * Timestamp.
+     */
     DATETIME;
 
+    /**
+     * Returns a comparator for the given metric sorting in descending order.
+     * @return comparator for the given metric
+     */
     public Comparator<? super Object> getComparator() {
         switch (this) {
             case WPM:

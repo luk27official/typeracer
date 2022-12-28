@@ -16,26 +16,93 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
+/**
+ * This class contains the main game logic.
+ * It is responsible for the game state and UI.
+ */
 public class Game extends JFrame {
+    /**
+     * The main game panel.
+     */
     private JPanel gamePanel;
+    /**
+     * Button to start the game.
+     */
     private JButton startButton;
+    /**
+     * The text area where the user types.
+     */
     private JTextField inputTextField;
+    /**
+     * WPM label.
+     */
     private JLabel wpmLabel;
+    /**
+     * Typing accuracy label.
+     */
     private JLabel accuracyLabel;
+    /**
+     * Upper game label.
+     */
     private JLabel upperLabel;
+    /**
+     * The text area where the text is displayed.
+     */
     private JTextPane textPane;
+    /**
+     * Timer for the game.
+     */
     private JLabel timerLabel;
+    /**
+     * Button to get back to the main menu.
+     */
     private JButton backToMenuButton;
 
+    /**
+     * Counter which holds the total number of characters typed.
+     */
     private int writtenChars;
+    /**
+     * Field helping the timer to count the elapsed seconds.
+     */
     private int secondsElapsed;
+    /**
+     * Typing accuracy.
+     */
     private double accuracy;
+    /**
+     * A list containing remaining words to be typed.
+     */
     private ArrayList<String> wordsRemaining;
+    /**
+     * A list containing already typed words.
+     */
     private ArrayList<String> wordsCompleted;
+    /**
+     * A boolean indicating whether the game is running.
+     */
     private boolean playing;
+    /**
+     * A timer to control the game events. Multiple timers are used during the game.
+     */
     private Timer timer;
+    /**
+     * An instance of the Statistics class to manage the statistics.
+     */
     private Statistics statistics;
 
+    /**
+     * A constructor for the Game class.
+     */
+    public Game() {
+        super();
+        this.statistics = new Statistics();
+    }
+
+    /**
+     * This method is called when the game is started.
+     * It initializes the game and sets up all the fields.
+     */
     private void startGame() {
         String text = getRandomText();
         String[] words = text.split(" ");
@@ -51,14 +118,17 @@ public class Game extends JFrame {
 
         inputTextField.setText("");
 
-        statistics = new Statistics();
-
         timer = new Timer(1000, e -> handleGameTimer());
         timer.start();
 
         playing = true;
     }
 
+    /**
+     * This method opens a file with texts to be typed.
+     * Then it randomly selects one of the texts and returns it.
+     * @return a random text to be typed
+     */
     private String getRandomText() {
         try (InputStream in = getClass().getResourceAsStream(Constants.TEXTS_FILE)) {
             if(in == null) {
@@ -78,6 +148,10 @@ public class Game extends JFrame {
         }
     }
 
+    /**
+     * This method is called when the game timer ticks.
+     * It updates the timer label during the game.
+     */
     private void handleGameTimer() {
         secondsElapsed++;
 
@@ -93,6 +167,12 @@ public class Game extends JFrame {
         }
     }
 
+    /**
+     * This method is called when the user types a character.
+     * It updates the game text area to be colored property.
+     * @param firstColor color of the words which have been typed
+     * @param secondColor color of the words which have not been typed
+     */
     private void changeTextColor(Color firstColor, Color secondColor) {
         try {
             textPane.setText("");
@@ -115,6 +195,12 @@ public class Game extends JFrame {
         }
     }
 
+    /**
+     * This method is responsible for getting common characters in two given strings.
+     * @param s1 first string
+     * @param s2 second string
+     * @return array of common characters
+     */
     private Character[] getCommonCharactersInTwoStrings(String s1, String s2) {
         HashSet<Character> h1 = new HashSet<>(), h2 = new HashSet<>();
         for(int i = 0; i < s1.length(); i++)
@@ -131,6 +217,10 @@ public class Game extends JFrame {
         return h1.toArray(new Character[0]);
     }
 
+    /**
+     * This method counts the total number of characters in the completed words.
+     * @return total number of characters in the completed words
+     */
     private double getCompletedWordsCharactersCount() {
         double count = 0;
         for(String word : wordsCompleted) {
@@ -139,6 +229,10 @@ public class Game extends JFrame {
         return count;
     }
 
+    /**
+     * This method calculates the WPM metric.
+     * @return WPM metric
+     */
     private double calculateWPM() {
         if(secondsElapsed == 0) {
             return 0;
@@ -150,6 +244,10 @@ public class Game extends JFrame {
         return wpm;
     }
 
+    /**
+     * This method is called when the user typed the entire text.
+     * It stops the game and shows the statistics.
+     */
     private void gameOver() {
         double wpm = calculateWPM();
 
@@ -161,6 +259,10 @@ public class Game extends JFrame {
         statistics.saveStatistics(wpm, accuracy);
     }
 
+    /**
+     * This method is called when the user presses a key.
+     * It gets the current input and based on the input it updates the game.
+     */
     private void checkWord() {
         if(!playing) {
             return;
@@ -206,6 +308,11 @@ public class Game extends JFrame {
         updateStats(currentWord, input);
     }
 
+    /**
+     * This method updates the current game statistics (in the GUI).
+     * @param currentWord current word
+     * @param input current input
+     */
     private void updateStats(String currentWord, String input) {
         wpmLabel.setText(String.format(Constants.WPM_INFO, calculateWPM()));
 
@@ -216,6 +323,11 @@ public class Game extends JFrame {
         }
     }
 
+    /**
+     * This method is invoked by the timer before the game starts.
+     * @param countdown number of seconds before the game starts
+     * @param readyMessage message to be displayed before the game starts in a specific format
+     */
     private void handleReadyTimer(int countdown, String readyMessage) {
         secondsElapsed++;
         if(secondsElapsed < countdown) {
@@ -228,6 +340,10 @@ public class Game extends JFrame {
         }
     }
 
+    /**
+     * This method handles the click on the start button.
+     * If not in game, it starts a timer which counts down before the game starts.
+     */
     private void handleStartBtn() {
         if(playing) {
             return;
@@ -241,12 +357,19 @@ public class Game extends JFrame {
         timer.start();
     }
 
+    /**
+     * This method handles the click on the "Back to menu" button.
+     */
     private void handleBackToMenuBtn() {
         this.dispose();
         MainMenu menu = new MainMenu();
         menu.createUIComponents();
     }
 
+    /**
+     * This method creates the game form, sets up all the event handlers and other window properties.
+     * Then the window is shown to the user.
+     */
     public void createUIComponents() {
         this.setContentPane(this.gamePanel);
         this.setTitle(Constants.GAME_TITLE);

@@ -4,7 +4,14 @@ package cz.lukaspolak.typeracer;
  * Class containing all constants used in the application.
  * To add new constant, just add new public static final field.
  */
-public class Constants {
+public final class Constants {
+
+    /**
+     * A private constructor to prevent instantiation.
+     */
+    private Constants() {
+    }
+
     /**
      * Game title.
      */
