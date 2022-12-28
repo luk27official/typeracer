@@ -62,7 +62,7 @@ public class Game extends JFrame {
     private String getRandomText() {
         try (InputStream in = getClass().getResourceAsStream(Constants.TEXTS_FILE)) {
             if(in == null) {
-                throw new IOException("Resource not found.");
+                throw new IOException(Constants.NOT_FOUND_ERROR);
             }
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -73,7 +73,7 @@ public class Game extends JFrame {
             return texts[(int) (Math.random() * texts.length)];
         }
         catch (IOException e) {
-            System.err.println("Error while reading JSON file: " + e.getMessage());
+            System.err.println(String.format(Constants.JSON_ERROR, e.getMessage()));
             return "An error occurred. But don't worry, you can still play the game with this great sample text. Have fun and make sure to fix the problem (provide a valid JSON file with texts)!";
         }
     }
@@ -86,10 +86,10 @@ public class Game extends JFrame {
         int seconds = secondsElapsed % 60;
 
         if(hours < 1) {
-            timerLabel.setText(String.format("Time: %02d:%02d", minutes, seconds));
+            timerLabel.setText(String.format(Constants.TIME_FORMAT_MINUTES_SECONDS, minutes, seconds));
         }
         else {
-            timerLabel.setText(String.format("Time: %02d:%02d:%02d", hours, minutes, seconds));
+            timerLabel.setText(String.format(Constants.TIME_FORMAT_HOURS_MINUTES_SECONDS, hours, minutes, seconds));
         }
     }
 
@@ -110,8 +110,8 @@ public class Game extends JFrame {
             doc.insertString(doc.getLength(),  String.join(" ", wordsRemaining), style2);
         }
         catch (BadLocationException e) {
-            this.textPane.setText("An error occurred while changing text color. Please restart the game.");
-            System.err.println("An error occurred while changing text color in the text pane.");
+            this.textPane.setText(Constants.TEXT_FORMAT_ERROR);
+            System.err.println(Constants.TEXT_FORMAT_ERROR);
         }
     }
 
@@ -153,7 +153,7 @@ public class Game extends JFrame {
     private void gameOver() {
         double wpm = calculateWPM();
 
-        textPane.setText(String.format("You have finished the game in %d seconds with %.1f WPM and %.2f%% accuracy.", secondsElapsed, wpm, accuracy*100));
+        textPane.setText(String.format(Constants.GAME_FINISHED, secondsElapsed, wpm, accuracy*100));
         textPane.setForeground(Color.BLACK);
         playing = false;
         timer.stop();
@@ -207,12 +207,12 @@ public class Game extends JFrame {
     }
 
     private void updateStats(String currentWord, String input) {
-        wpmLabel.setText(String.format("WPM: %.1f", calculateWPM()));
+        wpmLabel.setText(String.format(Constants.WPM_INFO, calculateWPM()));
 
         // accuracy between [0, 1]
         accuracy = (getCompletedWordsCharactersCount() + getCommonCharactersInTwoStrings(currentWord, input).length) / (double) writtenChars;
         if(accuracy <= 1) {
-            accuracyLabel.setText(String.format("Accuracy: %.2f%%", accuracy * 100));
+            accuracyLabel.setText(String.format(Constants.ACCURACY_INFO, accuracy * 100));
         }
     }
 
@@ -234,12 +234,10 @@ public class Game extends JFrame {
         }
 
         secondsElapsed = 0;
-        int countdown = 3;
 
-        String readyMessage = "Get ready in %d...";
-        textPane.setText(String.format(readyMessage, countdown));
+        textPane.setText(String.format(Constants.READY_MESSAGE, Constants.START_COUNTDOWN));
 
-        timer = new Timer(1000, e1 -> handleReadyTimer(countdown, readyMessage));
+        timer = new Timer(1000, e1 -> handleReadyTimer(Constants.START_COUNTDOWN, Constants.READY_MESSAGE));
         timer.start();
     }
 
@@ -255,8 +253,8 @@ public class Game extends JFrame {
         this.setSize(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        this.textPane.setFont(new Font(Constants.DEFAULT_FONT, Font.PLAIN, 20));
-        this.inputTextField.setFont(new Font(Constants.DEFAULT_FONT, Font.PLAIN, 15));
+        this.textPane.setFont(new Font(Constants.DEFAULT_FONT, Font.PLAIN, Constants.GAME_FONT_SIZE));
+        this.inputTextField.setFont(new Font(Constants.DEFAULT_FONT, Font.PLAIN, Constants.TEXTINPUT_FONT_SIZE));
 
         startButton.addActionListener(e -> handleStartBtn());
         backToMenuButton.addActionListener(e -> handleBackToMenuBtn());

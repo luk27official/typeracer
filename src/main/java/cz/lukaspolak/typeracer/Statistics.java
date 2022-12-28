@@ -12,7 +12,7 @@ public class Statistics {
     public JSONObject[] getTopScores(int count, StatisticsCriteria criteria) {
         try (InputStream in = getClass().getResourceAsStream(Constants.SCORES_FILE)) {
             if(in == null) {
-                throw new IOException("Resource not found.");
+                throw new IOException(Constants.NOT_FOUND_ERROR);
             }
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -31,7 +31,7 @@ public class Statistics {
             return topScores;
         }
         catch (IOException e) {
-            System.err.println("Error while reading JSON file: " + e.getMessage());
+            System.err.println(String.format(Constants.JSON_ERROR, e.getMessage()));
         }
         return null;
     }
@@ -43,7 +43,7 @@ public class Statistics {
 
         try (InputStream in = getClass().getResourceAsStream(Constants.SCORES_FILE)) {
             if(in == null) {
-                throw new IOException("Resource not found.");
+                throw new IOException(Constants.NOT_FOUND_ERROR);
             }
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -51,15 +51,13 @@ public class Statistics {
             JSONObject obj = new JSONObject(new JSONTokener(reader));
             obj.getJSONArray(Constants.JSON_SCORES_KEY).put(new JSONObject().put(Constants.JSON_WPM_KEY, wpm).put(Constants.JSON_ACCURACY_KEY, accuracy).put(Constants.JSON_DATETIME_KEY, System.currentTimeMillis()));
 
-            //System.out.println(obj.toString(Constants.JSON_INDENT));
-
             try (FileWriter file = new FileWriter(getClass().getResource(Constants.SCORES_FILE).getPath())) {
                 file.write(obj.toString(Constants.JSON_INDENT));
                 file.flush();
             }
         }
         catch (IOException e) {
-            System.err.println("Error while reading JSON file: " + e.getMessage());
+            System.err.println(String.format(Constants.JSON_ERROR, e.getMessage()));
         }
     }
 }

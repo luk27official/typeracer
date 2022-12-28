@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.util.Arrays;
 import java.util.Date;
 
 public class StatsForm extends JFrame {
@@ -18,12 +19,13 @@ public class StatsForm extends JFrame {
 
     private void updateTable(JSONObject[] scores) {
         String[] columns = new String[] {
-            "WPM",
-            "Accuracy",
-            "Date and time"
+            Constants.WPM_COLUMN_NAME,
+            Constants.ACCURACY_COLUMN_NAME,
+            Constants.DATETIME_COLUMN_NAME
         };
 
         DefaultTableModel model = (DefaultTableModel)scoresTable.getModel();
+
         model.setColumnIdentifiers(columns);
 
         for(int i = 0; i < scores.length; i++) {
@@ -32,14 +34,14 @@ public class StatsForm extends JFrame {
             String[] row = new String[columns.length];
 
             // round to 1 decimal place
-            row[0] = String.format("%.1f", score.getDouble(Constants.JSON_WPM_KEY));
+            row[Arrays.asList(columns).indexOf(Constants.WPM_COLUMN_NAME)] = String.format("%.1f", score.getDouble(Constants.JSON_WPM_KEY));
 
             // round to 0 decimal places
-            row[1] = String.format("%.0f%%", score.getDouble(Constants.JSON_ACCURACY_KEY)*100);
+            row[Arrays.asList(columns).indexOf(Constants.ACCURACY_COLUMN_NAME)] = String.format("%.0f%%", score.getDouble(Constants.JSON_ACCURACY_KEY)*100);
 
-            // convert to date and time
+            // convert timestamp to date and time
             Date date = new Date(score.getLong(Constants.JSON_DATETIME_KEY));
-            row[2] = date.toString();
+            row[Arrays.asList(columns).indexOf(Constants.DATETIME_COLUMN_NAME)] = date.toString();
 
             model.addRow(row);
         }
@@ -64,7 +66,9 @@ public class StatsForm extends JFrame {
 
         statistics = new Statistics();
 
-        this.upperLabel.setText(String.format("Your top %d scores:", Constants.TOP_SCORES_COUNT));
+        this.upperLabel.setText(String.format(Constants.TOP_SCORES_LABEL, Constants.TOP_SCORES_COUNT));
+
+        scoresTable.setDefaultEditor(Object.class, null); //disable editing cells
 
         JSONObject[] topScores = statistics.getTopScores(Constants.TOP_SCORES_COUNT, StatisticsCriteria.WPM);
         updateTable(topScores);
