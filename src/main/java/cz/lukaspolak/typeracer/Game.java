@@ -15,6 +15,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Random;
 
 /**
  * This class contains the main game logic.
@@ -147,7 +148,10 @@ public class Game extends JFrame {
             JSONObject obj = new JSONObject(new JSONTokener(reader));
             String[] texts = obj.getJSONArray(Constants.JSON_TEXTS_KEY).toList().toArray(new String[0]);
 
-            return texts[(int) (Math.random() * texts.length)];
+            Random rand = new Random();
+            int randomIndex = rand.nextInt(texts.length);
+
+            return texts[randomIndex];
         } catch (IOException e) {
             System.err.printf((Constants.JSON_ERROR) + "%n", e.getMessage());
             return "An error occurred. But don't worry, you can still play the game with this great sample text. Have fun and make sure to fix the problem (provide a valid JSON file with texts)!";
