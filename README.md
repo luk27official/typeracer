@@ -10,11 +10,14 @@ The main purpose of the game is to type the shown text without any mistakes the 
 
 ### How to run
 The recommended way to run the program is to compile it via Maven and then run.
-To compile the program, run the following command in the project's root directory: `mvn clean compile`
-To run the program, run the following command in the project's root directory: `mvn compile exec:java`
 
-To create a JAR package, run the following command in the project's root directory: `mvn compile package`
-You then may run the JAR package by running the following command in the project's root directory: `java -jar target/typeracer-1.0-SNAPSHOT-jar-with-dependencies.jar`
+- To compile the program, run the following command in the project's root directory: `mvn clean compile`
+- To run the program, run the following command in the project's root directory: `mvn compile exec:java`
+
+- To create a JAR package, run the following command in the project's root directory: `mvn compile package`
+- You then may run the JAR package by running the following command in the project's root directory: `java -jar target/typeracer-1.0-SNAPSHOT-jar-with-dependencies.jar`
+
+- To generate the JavaDoc documentation, run the following command in the project's root directory: `mvn javadoc:javadoc`
 
 ### Credits
 - original game authors (https://typeracer.com)
