@@ -19,7 +19,7 @@ public final class Constants {
     /**
      * Path to the file containing all statistics.
      */
-    public static final String SCORES_FILE = "/scores.json";
+    public static final String SCORES_FILE = "scores.json";
     /**
      * Path to the file containing all words.
      */

@@ -62,6 +62,9 @@ public class StatsForm extends JFrame {
      * Method that is responsible for displaying the scores data in the table.
      */
     private void updateTable(JSONObject[] scores) {
+        if (scores == null) {
+            return;
+        }
 
         //DefaultTableModel model = (DefaultTableModel)scoresTable.getModel();
         DefaultTableModel model = new DefaultTableModel(columns, 0);
@@ -174,4 +177,5 @@ public class StatsForm extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return statsPanel;
     }
+
 }
