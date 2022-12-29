@@ -55,6 +55,11 @@ public class Statistics {
         return null;
     }
 
+    /**
+     * This method is responsible for getting the path to the scores file.
+     * @return path to the scores file
+     * @throws IOException if the file cannot be found (should not happen now)
+     */
     private String getScoresFilePath() throws IOException {
         return Constants.SCORES_FILE;
         //return new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath() + Constants.SCORES_FILE;
@@ -66,7 +71,7 @@ public class Statistics {
      */
     private void createScoresFile() throws IOException {
         FileWriter fw = new FileWriter(getScoresFilePath());
-        fw.write("{ \"scores\":[] }");
+        fw.write("{ \"scores\": [] }");
         fw.flush();
         fw.close();
     }
