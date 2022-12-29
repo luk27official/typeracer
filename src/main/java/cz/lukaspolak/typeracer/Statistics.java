@@ -102,6 +102,7 @@ public class Statistics {
         catch (IOException e) {
             try { //if the file does not exist, create it
                 createScoresFile();
+                saveStatistics(wpm, accuracy);
             }
             catch (IOException e1) {
                 System.err.printf((Constants.JSON_ERROR) + "%n", e1.getMessage());
