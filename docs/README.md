@@ -1,4 +1,7 @@
 ## User documentation
+
+Hi from Git course. 
+
 For compiling and running the program, see the initial `README.md` file. In short, the command `mvn compile exec:java` should work for running the game.
 
 At first, the program will show the player the main menu.
